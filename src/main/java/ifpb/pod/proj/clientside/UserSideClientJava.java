@@ -1,6 +1,7 @@
 package ifpb.pod.proj.clientside;
 
 import ifpb.pod.proj.interfaces.Server;
+import ifpb.pod.proj.interfaces.Usuario;
 import ifpb.pod.proj.utils.StringCommand;
 
 import java.io.IOException;
@@ -23,7 +24,12 @@ import java.util.logging.Logger;
 //Responsavel por realizar garantia de entrega de mensagem
 public class UserSideClientJava {
 
+    private SocketMessages socketMessages;
     private Socket nodejsClient;
+
+    public UserSideClientJava(){
+        socketMessages = new SocketMessages();
+    }
 
     //serversocket escutar na porta 10889
     //NAO PRECISA DE THREAD POIS ESSE É SÓ O CLIENTE JAVA. NÃO O SERVIDOR
@@ -76,14 +82,18 @@ public class UserSideClientJava {
     private void login(Map<String, String> map){
         try{
             Server server = lookupRMIServer();
+            Usuario u = new UserImpl(map.get("email"), map.get("senha"));
+            String token = server.login(u);
+            if (token == null)
+                socketMessages.sendMessage(nodejsClient, socketMessages.LOGINFAIL);
+            else
+                socketMessages.sendMessage(nodejsClient, token);
         }
-        catch(Exception e){
-            try {
-                nodejsClient.getOutputStream().write("SERVER_CONNECTION_LOST".getBytes("UTF-8"));
-            }
-            catch(IOException io){
-                io.printStackTrace();
-            }
+        catch(NotBoundException e){
+            socketMessages.sendMessage(nodejsClient, socketMessages.LOSTSERVER);
+        }
+        catch(RemoteException e){
+            socketMessages.sendMessage(nodejsClient, socketMessages.LOSTSERVER);
         }
     }
 
@@ -133,6 +143,9 @@ public class UserSideClientJava {
         }
 
     }
+
+
+
 
 
 
