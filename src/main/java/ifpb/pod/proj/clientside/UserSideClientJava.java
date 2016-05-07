@@ -98,23 +98,21 @@ public class UserSideClientJava {
     }
 
     private void cadastrarUsuario(Map<String, String> map){
-        //rmiServer.cadastrarUsuario()
         try{
             Server server = lookupRMIServer();
+            server.cadastrarUsuario(map.get("nome"), map.get("email"), map.get("senha"));
+            socketMessages.sendMessage(nodejsClient, socketMessages.USER_REG_SUC);
         }
-        catch(Exception e){
-            try {
-                nodejsClient.getOutputStream().write("SERVER_CONNECTION_LOST".getBytes("UTF-8"));
-            }
-            catch(IOException io){
-                io.printStackTrace();
-            }
+        catch(NotBoundException e){
+            socketMessages.sendMessage(nodejsClient, socketMessages.LOSTSERVER);
+        }
+        catch(RemoteException e){
+            socketMessages.sendMessage(nodejsClient, socketMessages.LOSTSERVER);
         }
     }
 
 
     private void inscreverGrupo(Map<String, String> map){
-        //rmiServer.inscre...
         try{
             Server server = lookupRMIServer();
         }
