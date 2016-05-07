@@ -27,6 +27,8 @@ public class UserSideClientJava {
     private SocketMessages socketMessages;
     private Socket nodejsClient;
 
+    private Usuario loggedUser;
+
     public UserSideClientJava(){
         socketMessages = new SocketMessages();
     }
@@ -79,11 +81,60 @@ public class UserSideClientJava {
     }
 
 
+    private String getNotificacao(String tokenId){
+        //CONECTAR AO AppDataPublicServer porta 10666
+        try {
+            Socket socket = new Socket("localhost", 10666);
+
+            //gerar comando
+            String command = "getNotificacao?token="+tokenId;
+
+            //enviar comando listarPendentes
+            socket.getOutputStream().write(command.getBytes("UTF-8"));
+
+            //escutar resposta
+            byte[] b = new byte[1024];
+            socket.getInputStream().read(b);
+            String resp = new String(b).trim();
+
+            return resp;
+
+
+        }
+        catch(IOException e){
+            return null;
+        }
+    }
+
+    //ENVIA NOTIFICAÇÕES PARA NODEJS ATRAVÉS DE SOCKET
+    private boolean sendMessagesToNode(String msgs){
+
+        //NodeServer node = new NodeServer();
+        //node.receiveNotifications(msgs);
+
+
+        return false;
+    }
+
+    //ESSE MÉTODO É CHAMADO QUANDO Usuario.notificar(String str) é executado
+    public boolean sendNotificationToUser(String tokenId){
+
+        String notificacao = getNotificacao(tokenId);
+
+        if(notificacao == null)
+            return false;
+
+        return sendMessagesToNode(notificacao);
+
+    }
+
+
+
     private void login(Map<String, String> map){
         try{
             Server server = lookupRMIServer();
-            Usuario u = new UserImpl(map.get("email"), map.get("senha"));
-            String token = server.login(u);
+            loggedUser = new UserImpl(map.get("email"), map.get("senha"), this);
+            String token = server.login(loggedUser);
             if (token == null)
                 socketMessages.sendMessage(nodejsClient, socketMessages.LOGINFAIL);
             else
