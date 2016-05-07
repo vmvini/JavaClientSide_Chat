@@ -74,7 +74,7 @@ public class UserSideClientJava {
     }
 
 
-    public Server lookupRMIServer() throws RemoteException, NotBoundException{
+    private Server lookupRMIServer() throws RemoteException, NotBoundException{
         Registry registry = LocateRegistry.getRegistry("localhost", 10800);
         Server server = (Server) registry.lookup("server");
         return server;
@@ -108,12 +108,23 @@ public class UserSideClientJava {
 
     //ENVIA NOTIFICAÇÕES PARA NODEJS ATRAVÉS DE SOCKET
     private boolean sendMessagesToNode(String msgs){
+        try {
+            Socket socket = new Socket("localhost", 3020);
 
-        //NodeServer node = new NodeServer();
-        //node.receiveNotifications(msgs);
+            socket.getOutputStream().write(msgs.getBytes("UTF-8"));
+
+            byte[] b = new byte[1024];
+            socket.getInputStream().read(b);
+            String resp = new String(b).trim();
+            if(resp.equals("SUCCESS"))
+                return true;
+            return false;
+        }
+        catch(IOException e){
+            return false;
+        }
 
 
-        return false;
     }
 
     //ESSE MÉTODO É CHAMADO QUANDO Usuario.notificar(String str) é executado
