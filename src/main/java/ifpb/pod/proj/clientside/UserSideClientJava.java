@@ -221,7 +221,9 @@ public class UserSideClientJava {
 
         }
         catch(RemoteException e){
-            socketMessages.sendMessage(nodejsClient, socketMessages.LOSTMESSAGE);
+            //Removido por erro quando não foi realizada nenhuma conecção com o socket
+            //antes da Thread de mensagens pendente ser executada
+          //socketMessages.sendMessage(nodejsClient, socketMessages.LOSTMESSAGE);
             pendantMessages.save(map);
         }
 

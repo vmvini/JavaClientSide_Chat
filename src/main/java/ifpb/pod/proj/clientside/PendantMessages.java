@@ -100,7 +100,7 @@ public class PendantMessages {
 
         Document doc = new Document(root);
 
-        File usrFile = new File(this.getClass().getResource("pendant_messages.xml").getFile());
+        File usrFile = new File(this.getClass().getResource("/pendant_messages.xml").getFile());
 
         try {
             Serializer serializer = new Serializer(new FileOutputStream(usrFile), "UTF-8");
@@ -118,7 +118,7 @@ public class PendantMessages {
     private List<Map<String, String>> listarMensagens() throws IOException, ParsingException{
         
         Builder builder = new Builder();
-        InputStream is = new FileInputStream(new File(this.getClass().getResource("pendant_messages.xml").getFile()));
+        InputStream is = new FileInputStream(new File(this.getClass().getResource("/pendant_messages.xml").getFile()));
         Document doc = builder.build(is);
         Element root = doc.getRootElement();
         Elements childs = root.getChildElements("mensagem");
