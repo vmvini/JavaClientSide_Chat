@@ -13,68 +13,66 @@ import java.util.Map;
  */
 public class PendantMessages {
 
-
-
-
-
-    private void removeMsg(Map<String, String> map){
+    private void removeMsg(Map<String, String> map) {
         try {
             List<Map<String, String>> list = listarMensagens();
             list.remove(map);
             escreverMensagem(list);
-        }
-        catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
-        }
-        catch(ParsingException e){
+        } catch (ParsingException e) {
             e.printStackTrace();
         }
 
     }
 
+    public List< Map<String, String>> getAll(String email) {
 
-    public List< Map<String, String> > getAll(){
-        try{
+        List< Map<String, String>> all = getAll();
+        for (Map<String, String> map : all) {
+            if (map.get("email").equals(email)) {
+                all.remove(map);
+            }
+        }
+        return all;
+    }
+
+    public List< Map<String, String>> getAll() {
+        try {
             return listarMensagens();
-        }
-        catch (ParsingException e){
+        } catch (ParsingException e) {
             e.printStackTrace();
             return null;
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public void confirmSendedMessage(Map<String, String> map){
+    public void confirmSendedMessage(Map<String, String> map) {
         removeMsg(map);
     }
 
-    public void save(Map<String, String> map){
+    public void save(Map<String, String> map) {
         try {
 
             List<Map<String, String>> list = listarMensagens();
-            if(list.contains(map))
+            if (list.contains(map)) {
                 return;
+            }
 
             list.add(map);
 
             escreverMensagem(list);
-        }
-        catch(FileNotFoundException e){
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (ParsingException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        catch(ParsingException e){
-            e.printStackTrace();
-        }
-        catch(IOException e){
-            e.printStackTrace();
-        }
-
 
     }
-
 
     public void escreverMensagem(List<Map<String, String>> list) {
 
@@ -90,7 +88,6 @@ public class PendantMessages {
 
             Element contentEl = new Element("conteudo");
             contentEl.appendChild(map.get("conteudo"));
-
 
             mensagemEl.appendChild(usuarioIdEl);
             mensagemEl.appendChild(grupoIdEl);
@@ -111,12 +108,10 @@ public class PendantMessages {
             System.err.println(ex);
         }
 
-
     }
 
+    private List<Map<String, String>> listarMensagens() throws IOException, ParsingException {
 
-    private List<Map<String, String>> listarMensagens() throws IOException, ParsingException{
-        
         Builder builder = new Builder();
         InputStream is = new FileInputStream(new File(this.getClass().getResource("/pendant_messages.xml").getFile()));
         Document doc = builder.build(is);

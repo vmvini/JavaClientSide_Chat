@@ -154,8 +154,11 @@ public class UserSideClientJava {
             String token = server.login(loggedUser);
             if (token == null)
                 socketMessages.sendMessage(nodejsClient, socketMessages.LOGINFAIL);
-            else
+            else{
                 socketMessages.sendMessage(nodejsClient, token);
+                PendantMessageThread pt = new PendantMessageThread(pendantMessages, this,token,map.get("email"));
+                pt.start();
+            }
         }
         catch(NotBoundException e){
             socketMessages.sendMessage(nodejsClient, socketMessages.LOSTSERVER);
@@ -205,7 +208,7 @@ public class UserSideClientJava {
         try {
             Server server = lookupRMIServer();
             try {
-                server.escreverMensagem(map.get("email"), map.get("grupoId"), map.get("conteudo"), map.get("sessionToken"));
+                server.escreverMensagem(map.get("email"), map.get("grupoId"), map.get("conteudo"), map.get("token"));
                 pendantMessages.confirmSendedMessage(map);
                 socketMessages.sendMessage(nodejsClient, socketMessages.MESSAGE_SENDED);
             }

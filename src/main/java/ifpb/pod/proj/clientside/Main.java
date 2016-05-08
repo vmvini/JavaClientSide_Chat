@@ -9,11 +9,7 @@ public class Main {
 
 
         PendantMessages pm = new PendantMessages();
-
         UserSideClientJava clientJava = new UserSideClientJava(pm);
-        PendantMessageThread pt = new PendantMessageThread(pm, clientJava);
-
-        pt.start();
         clientJava.listenConnection();
 
     }
