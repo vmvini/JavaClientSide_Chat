@@ -216,6 +216,8 @@ public class UserSideClientJava {
         catch(NotBoundException e){
             socketMessages.sendMessage(nodejsClient, socketMessages.LOSTMESSAGE);
             pendantMessages.save(map);
+            //por enquanto, as mensagens pendentes vao ser enviadas com novas datas em cada tentativa
+            //pois nao to salvando a data de envio original
 
         }
         catch(RemoteException e){

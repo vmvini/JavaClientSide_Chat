@@ -81,19 +81,18 @@ public class PendantMessages {
         Element root = new Element("mensagens");
         for (Map<String, String> map : list) {
             Element mensagemEl = new Element("mensagem");
-            Element idEl = new Element("id");
-            idEl.appendChild(map.get("id"));
+
             Element usuarioIdEl = new Element("usuarioId");
-            usuarioIdEl.appendChild(map.get("usuarioId"));
-            Element dataTimeEl = new Element("dataTime");
-            dataTimeEl.appendChild(map.get("dataTime"));
+            usuarioIdEl.appendChild(map.get("email"));
+
             Element grupoIdEl = new Element("grupoId");
             grupoIdEl.appendChild(map.get("grupoId"));
+
             Element contentEl = new Element("conteudo");
             contentEl.appendChild(map.get("conteudo"));
-            mensagemEl.appendChild(idEl);
+
+
             mensagemEl.appendChild(usuarioIdEl);
-            mensagemEl.appendChild(dataTimeEl);
             mensagemEl.appendChild(grupoIdEl);
             mensagemEl.appendChild(contentEl);
             root.appendChild(mensagemEl);
@@ -117,6 +116,7 @@ public class PendantMessages {
 
 
     private List<Map<String, String>> listarMensagens() throws IOException, ParsingException{
+        
         Builder builder = new Builder();
         InputStream is = new FileInputStream(new File(this.getClass().getResource("pendant_messages.xml").getFile()));
         Document doc = builder.build(is);
@@ -126,14 +126,11 @@ public class PendantMessages {
         for (int i = 0; i < childs.size(); i++) {
             Element atual = childs.get(i);
             HashMap<String, String> map = new HashMap<String, String>();
-            String idValue = atual.getChild(1).getValue();
-            String userId = atual.getChild(3).getValue();
-            String dataTime = atual.getChild(5).getValue();
-            String grupoId = atual.getChild(7).getValue();
-            String conteudo = atual.getChild(9).getValue();
-            map.put("id", idValue);
-            map.put("usuarioId", userId);
-            map.put("dataTime", dataTime);
+            String userId = atual.getChild(1).getValue();
+            String grupoId = atual.getChild(3).getValue();
+            String conteudo = atual.getChild(5).getValue();
+
+            map.put("email", userId);
             map.put("grupoId", grupoId);
             map.put("conteudo", conteudo);
             list.add(map);
