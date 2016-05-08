@@ -185,7 +185,7 @@ public class UserSideClientJava {
             Server server = lookupRMIServer();
 
             try{
-                server.inscreverGrupo(map.get("email"), map.get("grupoId"), map.get("sessionToken"));
+                server.inscreverGrupo(loggedUser, map.get("grupoId"), map.get("sessionToken"));
                 socketMessages.sendMessage(nodejsClient, socketMessages.SUCCESS_SIGNUP_GROUP);
             }
             catch(AuthenticationException e){

@@ -13,8 +13,11 @@ public interface Server extends Remote {
 
     String cadastrarUsuario(String nome, String email, String senha) throws RemoteException;
 
-    void inscreverGrupo(String userEmail, String grupoId, String sessionToken) throws RemoteException, AuthenticationException;
+    void inscreverGrupo(Usuario user, String grupoId, String sessionToken) throws RemoteException, AuthenticationException;
 
     void escreverMensagem(String usrEmail, String grupoId, String conteudo, String sessionToken) throws RemoteException, AuthenticationException;
 
+    void excluirUsuario(Usuario usr, String token) throws RemoteException;
+
+    void logoff(Usuario usr, String token) throws RemoteException;
 }
