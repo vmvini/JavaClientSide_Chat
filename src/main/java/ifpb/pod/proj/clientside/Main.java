@@ -7,8 +7,12 @@ public class Main {
 
     public static void main(String[] args){
 
-        UserSideClientJava clientJava = new UserSideClientJava();
 
+        PendantMessages pm = new PendantMessages();
+        UserSideClientJava clientJava = new UserSideClientJava(pm);
+        PendantMessageThread pt = new PendantMessageThread(pm, clientJava);
+
+        pt.start();
         clientJava.listenConnection();
 
     }

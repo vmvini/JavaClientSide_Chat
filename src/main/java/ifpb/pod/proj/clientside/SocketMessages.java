@@ -14,6 +14,7 @@ public class SocketMessages {
     public final String SUCCESS_SIGNUP_GROUP = "SUCCESS_SIGNUP_GROUP";
     public final String NOT_LOGGED = "NOT_LOGGED";
     public final String MESSAGE_SENDED = "MESSAGE_SENDED";
+    public final String LOSTMESSAGE = "MESSAGE_WAITING";
 
     public void sendMessage(Socket socket, String msg){
         try {

@@ -27,17 +27,17 @@ public class UserSideClientJava {
 
     private SocketMessages socketMessages;
     private Socket nodejsClient;
+    private PendantMessages pendantMessages;
 
     private Usuario loggedUser;
 
-    public UserSideClientJava(){
+    public UserSideClientJava(PendantMessages pendantMessages){
         socketMessages = new SocketMessages();
+        this.pendantMessages = pendantMessages;
     }
 
 
-    private void sendPendantMessages(){
-        //UMA THREAD PARA ENVIAR MENSAGENS PENDENTES;..
-    }
+
 
     //serversocket escutar na porta 10889
     //NAO PRECISA DE THREAD POIS ESSE É SÓ O CLIENTE JAVA. NÃO O SERVIDOR
@@ -201,11 +201,12 @@ public class UserSideClientJava {
         }
     }
 
-    private void escreverMensagem(Map<String, String> map){
+    public void escreverMensagem(Map<String, String> map){
         try {
             Server server = lookupRMIServer();
             try {
                 server.escreverMensagem(map.get("email"), map.get("grupoId"), map.get("conteudo"), map.get("sessionToken"));
+                pendantMessages.confirmSendedMessage(map);
                 socketMessages.sendMessage(nodejsClient, socketMessages.MESSAGE_SENDED);
             }
             catch(AuthenticationException e){
@@ -213,12 +214,13 @@ public class UserSideClientJava {
             }
         }
         catch(NotBoundException e){
-            socketMessages.sendMessage(nodejsClient, socketMessages.LOSTSERVER);
-            //CODIGO PARA ENVIAR MENSAGEM NAO ENVIADA
+            socketMessages.sendMessage(nodejsClient, socketMessages.LOSTMESSAGE);
+            pendantMessages.save(map);
+
         }
         catch(RemoteException e){
-            socketMessages.sendMessage(nodejsClient, socketMessages.LOSTSERVER);
-            //CODIGO PARA ENVIAR MENSAGEM NAO ENVIADA
+            socketMessages.sendMessage(nodejsClient, socketMessages.LOSTMESSAGE);
+            pendantMessages.save(map);
         }
 
     }
