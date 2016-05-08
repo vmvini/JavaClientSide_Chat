@@ -4,6 +4,7 @@ import ifpb.pod.proj.interfaces.Server;
 import ifpb.pod.proj.interfaces.Usuario;
 import ifpb.pod.proj.utils.StringCommand;
 
+import javax.naming.AuthenticationException;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
@@ -31,6 +32,11 @@ public class UserSideClientJava {
 
     public UserSideClientJava(){
         socketMessages = new SocketMessages();
+    }
+
+
+    private void sendPendantMessages(){
+        //UMA THREAD PARA ENVIAR MENSAGENS PENDENTES;..
     }
 
     //serversocket escutar na porta 10889
@@ -177,29 +183,42 @@ public class UserSideClientJava {
     private void inscreverGrupo(Map<String, String> map){
         try{
             Server server = lookupRMIServer();
+
+            try{
+                server.inscreverGrupo(map.get("email"), map.get("grupoId"), map.get("sessionToken"));
+                socketMessages.sendMessage(nodejsClient, socketMessages.SUCCESS_SIGNUP_GROUP);
+            }
+            catch(AuthenticationException e){
+                socketMessages.sendMessage(nodejsClient, socketMessages.NOT_LOGGED);
+            }
+
         }
-        catch(Exception e){
-            try {
-                nodejsClient.getOutputStream().write("SERVER_CONNECTION_LOST".getBytes("UTF-8"));
-            }
-            catch(IOException io){
-                io.printStackTrace();
-            }
+        catch(NotBoundException e){
+            socketMessages.sendMessage(nodejsClient, socketMessages.LOSTSERVER);
+        }
+        catch(RemoteException e){
+            socketMessages.sendMessage(nodejsClient, socketMessages.LOSTSERVER);
         }
     }
 
     private void escreverMensagem(Map<String, String> map){
-        //rmiServer.escreverM
-        try{
+        try {
             Server server = lookupRMIServer();
-        }
-        catch(Exception e){
             try {
-                nodejsClient.getOutputStream().write("SERVER_CONNECTION_LOST".getBytes("UTF-8"));
+                server.escreverMensagem(map.get("email"), map.get("grupoId"), map.get("conteudo"), map.get("sessionToken"));
+                socketMessages.sendMessage(nodejsClient, socketMessages.MESSAGE_SENDED);
             }
-            catch(IOException io){
-                io.printStackTrace();
+            catch(AuthenticationException e){
+                socketMessages.sendMessage(nodejsClient, socketMessages.NOT_LOGGED);
             }
+        }
+        catch(NotBoundException e){
+            socketMessages.sendMessage(nodejsClient, socketMessages.LOSTSERVER);
+            //CODIGO PARA ENVIAR MENSAGEM NAO ENVIADA
+        }
+        catch(RemoteException e){
+            socketMessages.sendMessage(nodejsClient, socketMessages.LOSTSERVER);
+            //CODIGO PARA ENVIAR MENSAGEM NAO ENVIADA
         }
 
     }
