@@ -1,7 +1,6 @@
 package ifpb.pod.proj.clientside;
 
 import nu.xom.*;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +19,8 @@ public class PendantMessages {
             escreverMensagem(list);
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (ParsingException e) {
+        }
+        catch(ParsingException e){
             e.printStackTrace();
         }
 
@@ -89,9 +89,13 @@ public class PendantMessages {
             Element contentEl = new Element("conteudo");
             contentEl.appendChild(map.get("conteudo"));
 
+            Element tokenEl = new Element("token");
+            tokenEl.appendChild(map.get("token"));
+
             mensagemEl.appendChild(usuarioIdEl);
             mensagemEl.appendChild(grupoIdEl);
             mensagemEl.appendChild(contentEl);
+            mensagemEl.appendChild(tokenEl);
             root.appendChild(mensagemEl);
         }
 
@@ -110,7 +114,7 @@ public class PendantMessages {
 
     }
 
-    private List<Map<String, String>> listarMensagens() throws IOException, ParsingException {
+    private List<Map<String, String>> listarMensagens() throws IOException, nu.xom.ParsingException {
 
         Builder builder = new Builder();
         InputStream is = new FileInputStream(new File(this.getClass().getResource("/pendant_messages.xml").getFile()));
@@ -124,10 +128,12 @@ public class PendantMessages {
             String userId = atual.getChild(1).getValue();
             String grupoId = atual.getChild(3).getValue();
             String conteudo = atual.getChild(5).getValue();
+            String token = atual.getChild(7).getValue();
 
             map.put("email", userId);
             map.put("grupoId", grupoId);
             map.put("conteudo", conteudo);
+            map.put("token", token);
             list.add(map);
         }
         return list;

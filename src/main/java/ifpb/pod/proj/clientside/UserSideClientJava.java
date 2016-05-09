@@ -112,7 +112,6 @@ public class UserSideClientJava {
         }
     }
 
-    //ENVIA NOTIFICAÇÕES PARA NODEJS ATRAVÉS DE SOCKET
     private boolean sendMessagesToNode(String msgs){
         try {
             Socket socket = new Socket("localhost", 3020);
@@ -133,7 +132,6 @@ public class UserSideClientJava {
 
     }
 
-    //ESSE MÉTODO É CHAMADO QUANDO Usuario.notificar(String str) é executado
     public boolean sendNotificationToUser(String tokenId){
 
         String notificacao = getNotificacao(tokenId);
