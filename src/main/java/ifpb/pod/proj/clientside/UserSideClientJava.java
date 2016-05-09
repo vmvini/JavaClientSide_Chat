@@ -46,6 +46,7 @@ public class UserSideClientJava {
             ServerSocket serverSocket = new ServerSocket(10889);
             while(true){
                 nodejsClient = serverSocket.accept();
+                System.out.println("nodejs cliente se conectou");
                 byte[] b = new byte[1024];
                 nodejsClient.getInputStream().read(b);
 
@@ -69,6 +70,9 @@ public class UserSideClientJava {
                         inscreverGrupo(map);
 
                 }
+                else if(map.get("command").equals("sair")){
+                    logoff(map);
+                }
 
                 nodejsClient.close();
             }
@@ -79,6 +83,22 @@ public class UserSideClientJava {
 
     }
 
+
+    private void logoff(Map<String, String> map){
+        //Usuario usr, String token
+
+        try{
+            Server server = lookupRMIServer();
+            server.logoff(loggedUser, map.get("token"));
+
+        }
+        catch(NotBoundException e){
+            socketMessages.sendMessage(nodejsClient, socketMessages.LOSTSERVER);
+        }
+        catch(RemoteException e){
+            socketMessages.sendMessage(nodejsClient, socketMessages.LOSTSERVER);
+        }
+    }
 
     private Server lookupRMIServer() throws RemoteException, NotBoundException{
         Registry registry = LocateRegistry.getRegistry("localhost", 10800);
@@ -149,11 +169,19 @@ public class UserSideClientJava {
         try{
             Server server = lookupRMIServer();
             loggedUser = new UserImpl(map.get("email"), map.get("senha"), this);
+
+            System.out.println("email: " + map.get("email"));
+            System.out.println("senha: " + map.get("senha"));
+
             String token = server.login(loggedUser);
-            if (token == null)
+            if (token == null) {
                 socketMessages.sendMessage(nodejsClient, socketMessages.LOGINFAIL);
+                System.out.println("token de login nulo");
+            }
+
             else{
-                socketMessages.sendMessage(nodejsClient, token);
+                System.out.println("Token de login: " + token);
+                socketMessages.sendMessage(nodejsClient, "token:"+token);
                 PendantMessageThread pt = new PendantMessageThread(pendantMessages, this,token,map.get("email"));
                 pt.start();
             }

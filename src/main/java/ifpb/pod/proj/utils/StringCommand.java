@@ -9,6 +9,8 @@ import java.util.Map;
 public class StringCommand {
 
     public static Map<String, String> convert(String params) {
+        System.out.println("traduzindo comando: ");
+        System.out.println(params);
         Map<String, String> map = new HashMap<String, String>();
 
         String commandSplit[] = params.split("\\?");
