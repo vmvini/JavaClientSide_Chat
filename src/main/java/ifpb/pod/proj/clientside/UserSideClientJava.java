@@ -13,6 +13,8 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -29,11 +31,13 @@ public class UserSideClientJava {
     private Socket nodejsClient;
     private PendantMessages pendantMessages;
 
-    private Usuario loggedUser;
+    private Map<String, Usuario> logged_users;
 
     public UserSideClientJava(PendantMessages pendantMessages){
         socketMessages = new SocketMessages();
         this.pendantMessages = pendantMessages;
+
+        logged_users = new HashMap<String, Usuario>();
     }
 
 
@@ -89,7 +93,8 @@ public class UserSideClientJava {
 
         try{
             Server server = lookupRMIServer();
-            server.logoff(loggedUser, map.get("token"));
+            server.logoff(getUserByToken(map.get("token")), map.get("token"));
+            logged_users.remove(map.get("token"));
 
         }
         catch(NotBoundException e){
@@ -168,7 +173,9 @@ public class UserSideClientJava {
     private void login(Map<String, String> map){
         try{
             Server server = lookupRMIServer();
-            loggedUser = new UserImpl(map.get("email"), map.get("senha"), this);
+            Usuario loggedUser = new UserImpl(map.get("email"), map.get("senha"), this);
+
+
 
             System.out.println("email: " + map.get("email"));
             System.out.println("senha: " + map.get("senha"));
@@ -181,6 +188,9 @@ public class UserSideClientJava {
 
             else{
                 System.out.println("Token de login: " + token);
+
+                logged_users.put(token, loggedUser);
+
                 socketMessages.sendMessage(nodejsClient, "token:"+token);
                 PendantMessageThread pt = new PendantMessageThread(pendantMessages, this,token,map.get("email"));
                 pt.start();
@@ -209,12 +219,16 @@ public class UserSideClientJava {
     }
 
 
+    private Usuario getUserByToken(String token){
+        return logged_users.get(token);
+    }
+
     private void inscreverGrupo(Map<String, String> map){
         try{
             Server server = lookupRMIServer();
 
             try{
-                server.inscreverGrupo(loggedUser, map.get("grupoId"), map.get("sessionToken"));
+                server.inscreverGrupo(getUserByToken(map.get("sessionToken")), map.get("grupoId"), map.get("sessionToken"));
                 socketMessages.sendMessage(nodejsClient, socketMessages.SUCCESS_SIGNUP_GROUP);
             }
             catch(AuthenticationException e){
