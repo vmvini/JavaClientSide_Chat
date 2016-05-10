@@ -29,6 +29,7 @@ public class UserSideClientJava {
 
     private SocketMessages socketMessages;
     private Socket nodejsClient;
+    private Socket nodejsServer;
     private PendantMessages pendantMessages;
 
     private Map<String, Usuario> logged_users;
@@ -95,6 +96,7 @@ public class UserSideClientJava {
             Server server = lookupRMIServer();
             server.logoff(getUserByToken(map.get("token")), map.get("token"));
             logged_users.remove(map.get("token"));
+            System.out.println("REMOVEU UM USUARIO");
 
         }
         catch(NotBoundException e){
@@ -127,7 +129,7 @@ public class UserSideClientJava {
             byte[] b = new byte[1024];
             socket.getInputStream().read(b);
             String resp = new String(b).trim();
-
+            System.out.println("notificaçoes: " + resp);
             return resp;
 
 
@@ -139,15 +141,20 @@ public class UserSideClientJava {
 
     private boolean sendMessagesToNode(String msgs){
         try {
-            Socket socket = new Socket("localhost", 3020);
+            if(nodejsServer == null)
+                nodejsServer = new Socket("localhost", 3020);
 
-            socket.getOutputStream().write(msgs.getBytes("UTF-8"));
+            nodejsServer.getOutputStream().write(msgs.getBytes("UTF-8"));
 
+            System.out.println("sending messages to nodejs: " + msgs);
             byte[] b = new byte[1024];
-            socket.getInputStream().read(b);
+            nodejsServer.getInputStream().read(b);
             String resp = new String(b).trim();
-            if(resp.equals("SUCCESS"))
+            if(resp.equals("SUCCESS")) {
+                System.out.println("NODE RESPONDED WITH SUCCESS");
                 return true;
+            }
+            System.out.println("NODE DIDNT RESPOND");
             return false;
         }
         catch(IOException e){
@@ -158,6 +165,8 @@ public class UserSideClientJava {
     }
 
     public boolean sendNotificationToUser(String tokenId){
+
+        System.out.println("sendNotificationToUser");
 
         String notificacao = getNotificacao(tokenId);
 
@@ -248,7 +257,7 @@ public class UserSideClientJava {
         try {
             Server server = lookupRMIServer();
             try {
-                server.escreverMensagem(map.get("email"), map.get("grupoId"), map.get("conteudo"), map.get("token"));
+                server.escreverMensagem(map.get("email"), map.get("grupoId"), map.get("conteudo"), map.get("sessionToken"));
                 pendantMessages.confirmSendedMessage(map);
                 socketMessages.sendMessage(nodejsClient, socketMessages.MESSAGE_SENDED);
             }
